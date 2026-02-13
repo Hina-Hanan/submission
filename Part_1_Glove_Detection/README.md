@@ -326,11 +326,6 @@ python detection_script.py --input ./images --output ./out --weights ./train_run
 
 ---
 
-## Testing with Your Own Images
-
-**📌 All instructions for running the scripts are in the [How to Run](#how-to-run) section above.**
----
-
 ## Project structure
 
 ```
