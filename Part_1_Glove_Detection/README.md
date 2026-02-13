@@ -10,6 +10,8 @@ Production-ready object detection pipeline to detect hands in images and classif
 - [Training](#training)
 - [Inference](#inference)
 - [Testing with Your Own Images](#testing-with-your-own-images)
+  - [Option A: Train the Model Yourself (Recommended)](#option-a-train-the-model-yourself-recommended)
+  - [Option B: Use Pre-trained Weights (Quick Test)](#option-b-use-pre-trained-weights-quick-test)
 - [Project structure](#project-structure)
 - [What worked](#what-worked)
 - [Limitations and what didn't work as well](#limitations-and-what-didnt-work-as-well)
@@ -270,167 +272,215 @@ The script auto-detects device in this priority order:
 
 ### For Reviewers/Testers
 
-#### Quick Decision Guide
+#### Important Note About `train_run` Folder
 
-**After cloning this repository, choose your path:**
+**When you clone this repository, you will see a `train_run/` folder.**
 
-1. **I just want to test the model** → Use existing weights (if `train_run/weights/best.pt` exists)
-   - Go to: [Testing with Pre-trained Weights](#testing-with-pre-trained-weights)
-   - No training needed!
+This folder contains **my pre-trained model weights** that I trained during development. It includes:
+- `train_run/weights/best.pt` - The trained model file
+- Training plots and logs from my training session
 
-2. **I want to verify training works** → Train the model yourself
-   - Go to: [Training Fresh](#training-fresh-optional)
-   - Training will overwrite existing `train_run/` folder (this is safe!)
+**⭐ RECOMMENDED:** I recommend that reviewers **train the model themselves** to verify that the training pipeline works correctly. This is the best way to ensure everything functions as expected.
 
-3. **I'm not sure** → Read the detailed explanation below
+**However, if you just want to quickly test inference, you can use my pre-trained weights.**
 
 ---
 
-#### Understanding the `train_run` Folder - Step by Step
+## Option A: Train the Model Yourself (Recommended)
 
-**What is `train_run`?**
-- It's a folder that contains everything created during training: model weights, training plots, logs, and configuration files
-- It's created automatically when you run training
-- You don't need to create it manually
+### Step-by-Step Instructions
 
-**What happens when you clone this repository?**
+**Why train yourself?**
+- ✅ Verifies that the training pipeline works correctly
+- ✅ Ensures all dependencies are properly installed
+- ✅ Confirms the dataset structure is correct
+- ✅ You'll get your own training results and plots
 
-When you clone the GitHub repository, you might see a `train_run/` folder already there. This contains the pre-trained model weights from the original training.
+**What happens to the existing `train_run/` folder?**
+- ⚠️ **Training will OVERWRITE the existing `train_run/` folder**
+- ✅ This is safe - you can always re-clone the repository to get my original weights back
+- ✅ You will NOT get duplicate folders - only one `train_run/` will exist
 
-**Scenario 1: You want to test with pre-trained weights (skip training)**
-
-✅ **What to do:**
-1. Check if `train_run/weights/best.pt` exists
-2. If it exists → You can use it directly for testing (skip to [Testing section](#testing-with-pre-trained-weights))
-3. If it doesn't exist → You need to train first (see Scenario 2)
-
-**Scenario 2: You want to train the model yourself**
-
-✅ **What happens when you run training:**
-
-**Step 1:** Run the training command:
-```bash
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
-```
-
-**Step 2:** The training script checks:
-- Does `train_run/` folder exist? 
-  - **YES** → It will **OVERWRITE** the existing folder (the old weights and plots will be replaced)
-  - **NO** → It will create a new `train_run/` folder
-
-**Step 3:** After training completes:
-- A new `train_run/` folder is created (or the old one is replaced)
-- Inside `train_run/weights/` you'll find `best.pt` - this is your newly trained model
-- Training plots and logs are saved in `train_run/`
-
-**Important:** 
-- ⚠️ **If `train_run/` already exists, training will OVERWRITE it** - the old weights will be replaced with new ones
-- ✅ **You will NOT get two `train_run` folders** - there will always be only one
-- ✅ **This is safe** - you can always re-clone the repository to get the original weights back
-
-**Step 4:** Use your newly trained weights:
-```bash
-python detection_script.py --input your_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
-```
-
-**Summary Table:**
-
-| Situation | What Happens | Result |
-|-----------|--------------|--------|
-| Clone repo → `train_run/` exists → You run training | Old `train_run/` is **overwritten** | New training results replace old ones |
-| Clone repo → `train_run/` exists → You test only | Uses existing weights | No changes to `train_run/` |
-| Clone repo → No `train_run/` → You run training | New `train_run/` is **created** | Fresh training results |
-| Clone repo → No `train_run/` → You test only | Error: weights not found | You must train first |
-
-**Recommendation for reviewers:**
-- If you want to verify training works → Train fresh (it's safe, old weights will be overwritten)
-- If you just want to test → Use existing weights (no training needed)
-
----
-
-### Testing with Pre-trained Weights
-
-To test the model with your own images using pre-trained weights, follow these steps:
-
-#### Step 1: Prepare Your Images
-
-1. **Create a folder** anywhere on your system (e.g., `my_test_images/`)
-2. **Place your `.jpg` images** in this folder
-   - Supported formats: `.jpg`, `.jpeg`, `.JPG`, `.JPEG`
-   - No labels or annotations needed - just images!
-
-**Example folder structure:**
-```
-my_test_images/
-├── image1.jpg
-├── image2.jpg
-├── photo1.jpeg
-└── test_image.JPG
-```
-
-#### Step 2: Run Inference
-
-**No changes needed to the code!** Simply run the detection script with your image folder:
-
-```bash
-python detection_script.py --input my_test_images --output my_results --weights train_run/weights/best.pt --confidence 0.5 --logs my_logs --batch 4
-```
-
-**Parameters:**
-- `--input my_test_images` → Path to your folder containing images
-- `--output my_results` → Folder where annotated images will be saved (created automatically)
-- `--weights train_run/weights/best.pt` → Path to trained model weights (already in project)
-- `--confidence 0.5` → Detection threshold (adjust if needed: lower = more detections, higher = fewer but more confident)
-- `--logs my_logs` → Folder for JSON detection logs (created automatically)
-- `--batch 4` → Batch size (use 1 for very memory-constrained systems)
-
-#### Step 3: View Results
-
-After running, you'll find:
-
-1. **Annotated images** in `my_results/` folder:
-   - Original images with bounding boxes and labels drawn on them
-   - Each detection shows: label (`gloved_hand` or `bare_hand`) and confidence score
-
-2. **JSON logs** in `my_logs/` folder:
-   - One JSON file per image (same filename as image, with `.json` extension)
-   - Contains all detections with bounding box coordinates and confidence scores
-
-#### Quick Example
+#### Step 1: Install Dependencies
 
 ```bash
 # Navigate to project directory
 cd Part_1_Glove_Detection
 
-# Run detection on your images
-python detection_script.py --input /path/to/your/images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
+# Create virtual environment (if not already done)
+python -m venv venv
 
-# Check results
-# - Annotated images: results/
-# - Detection logs: detection_logs/
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# Install required packages
+pip install -r requirements.txt
 ```
 
-#### Notes:
+#### Step 2: Verify Dataset Structure
 
-- **No code changes required** - works with any folder of images
-- **Model weights:** 
-  - If `train_run/weights/best.pt` exists → use it directly
-  - If it doesn't exist → train the model first (see [Training](#training) section)
-- **Image format:** Only `.jpg`/`.jpeg` files are processed
-- **Multiple detections:** If both gloved and bare hands are detected in one image, both will appear in the JSON and annotated image
-- **Confidence threshold:** Lower values (e.g., 0.3) catch more hands but may include false positives. Higher values (e.g., 0.7) are more strict but may miss some detections
+Check that your dataset is in the correct format:
 
-### Training Fresh (Optional)
+```bash
+# Verify dataset structure exists
+ls dataset/train/images    # Should show training images
+ls dataset/valid/images    # Should show validation images
+ls dataset/test/images      # Should show test images
+ls dataset/data.yaml        # Should show the config file
+```
 
-If you want to train the model yourself (recommended to verify the training pipeline):
+#### Step 3: Run Training
 
-1. **Follow the [Training](#training) section** - it will create a new `train_run/` folder automatically
-2. **After training completes**, use the newly created weights:
+Choose the appropriate command based on your hardware:
+
+**For GPU or Strong CPU (Recommended):**
+```bash
+python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
+```
+
+**For CPU-only (Lighter settings):**
+```bash
+python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
+```
+
+**What happens:**
+- Training will start and show progress
+- The existing `train_run/` folder will be **overwritten** with new training results
+- Training may take 30 minutes to several hours depending on your hardware
+
+#### Step 4: Verify Training Completed
+
+After training finishes, check:
+
+```bash
+# Verify weights were created
+ls train_run/weights/best.pt    # Should exist
+
+# Check training plots (optional)
+ls train_run/*.png              # Should show training plots
+```
+
+#### Step 5: Test with Your Own Images
+
+Now use your newly trained model:
+
+```bash
+# Prepare your test images folder
+# (Create a folder and add your .jpg images)
+
+# Run detection
+python detection_script.py --input your_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
+```
+
+**Check results:**
+- Annotated images: `results/` folder
+- Detection logs: `detection_logs/` folder (JSON files)
+
+---
+
+## Option B: Use Pre-trained Weights (Quick Test)
+
+### Step-by-Step Instructions
+
+**Use this option if:**
+- ✅ You just want to quickly test inference
+- ✅ You don't want to wait for training
+- ✅ You trust the pre-trained weights
+
+**Note:** This uses my pre-trained model weights from the repository.
+
+#### Step 1: Verify Pre-trained Weights Exist
+
+```bash
+# Navigate to project directory
+cd Part_1_Glove_Detection
+
+# Check if weights exist
+ls train_run/weights/best.pt
+```
+
+If the file exists, you're good to go! If not, you'll need to train first (see Option A).
+
+#### Step 2: Install Dependencies (if not already done)
+
+```bash
+# Create virtual environment (if needed)
+python -m venv venv
+
+# Activate virtual environment
+# Windows:
+venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# Install required packages
+pip install -r requirements.txt
+```
+
+#### Step 3: Prepare Your Test Images
+
+1. **Create a folder** for your test images:
    ```bash
-   python detection_script.py --input your_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+   mkdir my_test_images
    ```
 
-**Note:** Training creates `train_run/` automatically - you don't need an existing one!
+2. **Add your `.jpg` images** to this folder:
+   - Supported formats: `.jpg`, `.jpeg`, `.JPG`, `.JPEG`
+   - No labels needed - just images!
+
+**Example:**
+```
+my_test_images/
+├── image1.jpg
+├── image2.jpg
+└── photo1.jpeg
+```
+
+#### Step 4: Run Detection
+
+```bash
+python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
+```
+
+**Parameters explained:**
+- `--input my_test_images` → Your folder with test images
+- `--output results` → Where annotated images will be saved
+- `--weights train_run/weights/best.pt` → Using pre-trained weights from repository
+- `--confidence 0.5` → Detection threshold (0-1)
+- `--logs detection_logs` → Where JSON logs will be saved
+- `--batch 4` → Batch size (use 1 for very limited memory)
+
+#### Step 5: View Results
+
+After running, check your results:
+
+```bash
+# View annotated images
+ls results/              # Should show annotated images with bounding boxes
+
+# View detection logs
+ls detection_logs/      # Should show JSON files (one per image)
+cat detection_logs/*.json  # View detection results
+```
+
+**What you'll see:**
+- **Annotated images:** Original images with bounding boxes and labels (`gloved_hand` or `bare_hand`)
+- **JSON logs:** One file per image with detection details (label, confidence, bounding box coordinates)
+
+---
+
+### Quick Comparison
+
+| Aspect | Option A: Train Yourself | Option B: Use Pre-trained |
+|--------|-------------------------|--------------------------|
+| **Time** | 30 min - several hours | ~5 minutes |
+| **Verifies** | Training + Inference | Inference only |
+| **Requires** | Dataset + Training time | Just test images |
+| **Recommended** | ✅ Yes (best practice) | Quick testing only |
+| **Overwrites `train_run/`** | Yes (creates new) | No (uses existing) |
 
 ---
 
