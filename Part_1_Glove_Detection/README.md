@@ -4,14 +4,72 @@ Production-ready object detection pipeline to detect hands in images and classif
 
 ## Table of Contents
 
+- [Installation](#installation)
 - [Dataset](#dataset)
 - [Model](#model)
 - [Training](#training)
 - [Inference](#inference)
+- [Testing with Your Own Images](#testing-with-your-own-images)
 - [Project structure](#project-structure)
 - [What worked](#what-worked)
 - [Limitations and what didn't work as well](#limitations-and-what-didnt-work-as-well)
 - [Future improvements](#future-improvements)
+
+---
+
+## Installation
+
+### Mac (macOS) Users
+
+**Good news:** All commands are the same! The pipeline automatically detects and uses Apple Silicon GPU (MPS) if available.
+
+#### Additional Setup for Mac:
+
+1. **Python Installation:**
+   - If you don't have Python 3.8+, install via Homebrew:
+     ```bash
+     brew install python3
+     ```
+   - Or download from [python.org](https://www.python.org/downloads/)
+
+2. **Create Virtual Environment:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # Note: use 'source' instead of Windows' 'venv\Scripts\activate'
+   ```
+
+3. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+   
+   **Note:** PyTorch will automatically use MPS (Metal Performance Shaders) on Apple Silicon Macs (M1/M2/M3) for faster inference and training. The script auto-detects this - no additional configuration needed!
+
+4. **Commands are identical:**
+   - Training: Same commands as Windows/Linux
+   - Inference: Same commands as Windows/Linux
+   - The only difference is using `python3` instead of `python` if your system requires it
+
+#### Apple Silicon (M1/M2/M3) Performance:
+
+- **Training:** MPS acceleration provides faster training than CPU-only, but slower than NVIDIA GPU
+- **Inference:** Significantly faster than CPU-only
+- **Recommended settings for Apple Silicon:**
+  ```bash
+  python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 8 --imgsz 640 --weights-dir weights
+  ```
+  (Batch size 8-12 works well on Apple Silicon)
+
+### Windows/Linux Users
+
+Standard installation:
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+# or
+source venv/bin/activate  # Linux/Mac
+pip install -r requirements.txt
+```
 
 ---
 
@@ -63,6 +121,8 @@ Paths in `data.yaml` are relative to the `dataset/` directory (`train/images`, `
 - Used higher image resolution (640 instead of 320) for finer detail
 - Trained larger models (yolov8s or yolov8m) without excessive wait times
 
+**Mac users (Apple Silicon):** MPS acceleration provides a middle ground - faster than CPU-only but slower than NVIDIA GPU. You can use batch sizes of 8-12 and higher resolutions (640) for better results than CPU-only training.
+
 Despite CPU constraints, the model achieves reasonable performance through careful hyperparameter tuning and lightweight configurations.
 
 ### Training Configuration Used
@@ -107,7 +167,7 @@ Despite CPU constraints, the model achieves reasonable performance through caref
    python train.py --data dataset/data.yaml --model yolov8s.pt --epochs 30 --imgsz 640 --batch 8 --weights-dir weights --project .
    ```
 
-3. Best weights are written to `weights/best.pt` and also stored under the latest run directory (e.g. `train_run/weights/best.pt`). In practice you can use either path; this README uses the `train_run/weights/best.pt` location for inference.
+3. Best weights are written to `train_run/weights/best.pt` and also stored under the latest run directory (e.g. `train_run/weights/best.pt`). In practice you can use either path; this README uses the `train_run/weights/best.pt` location for inference.
 
 ### Training commands summary
 
@@ -186,9 +246,88 @@ python detection_script.py --input ./images --output ./out --weights ./train_run
 - **bbox:** absolute pixel coordinates `[x1, y1, x2, y2]`.  
 - **confidence:** rounded to 2 decimal places.
 
-### GPU/CPU
+### GPU/CPU/MPS (Apple Silicon)
 
-The script auto-detects device: CUDA GPU if available, else MPS (Apple Silicon), else CPU. No extra flags required.
+The script auto-detects device in this priority order:
+1. **CUDA GPU** (NVIDIA) - if available
+2. **MPS** (Apple Silicon Mac M1/M2/M3) - if available
+3. **CPU** - fallback
+
+**Mac users:** MPS acceleration is automatically used on Apple Silicon Macs - no additional installation or configuration needed! Commands are identical to Windows/Linux.
+
+---
+
+## Testing with Your Own Images
+
+### For Reviewers/Testers
+
+To test the model with your own images, follow these simple steps:
+
+#### Step 1: Prepare Your Images
+
+1. **Create a folder** anywhere on your system (e.g., `my_test_images/`)
+2. **Place your `.jpg` images** in this folder
+   - Supported formats: `.jpg`, `.jpeg`, `.JPG`, `.JPEG`
+   - No labels or annotations needed - just images!
+
+**Example folder structure:**
+```
+my_test_images/
+├── image1.jpg
+├── image2.jpg
+├── photo1.jpeg
+└── test_image.JPG
+```
+
+#### Step 2: Run Inference
+
+**No changes needed to the code!** Simply run the detection script with your image folder:
+
+```bash
+python detection_script.py --input my_test_images --output my_results --weights train_run/weights/best.pt --confidence 0.5 --logs my_logs --batch 4
+```
+
+**Parameters:**
+- `--input my_test_images` → Path to your folder containing images
+- `--output my_results` → Folder where annotated images will be saved (created automatically)
+- `--weights train_run/weights/best.pt` → Path to trained model weights (already in project)
+- `--confidence 0.5` → Detection threshold (adjust if needed: lower = more detections, higher = fewer but more confident)
+- `--logs my_logs` → Folder for JSON detection logs (created automatically)
+- `--batch 4` → Batch size (use 1 for very memory-constrained systems)
+
+#### Step 3: View Results
+
+After running, you'll find:
+
+1. **Annotated images** in `my_results/` folder:
+   - Original images with bounding boxes and labels drawn on them
+   - Each detection shows: label (`gloved_hand` or `bare_hand`) and confidence score
+
+2. **JSON logs** in `my_logs/` folder:
+   - One JSON file per image (same filename as image, with `.json` extension)
+   - Contains all detections with bounding box coordinates and confidence scores
+
+#### Quick Example
+
+```bash
+# Navigate to project directory
+cd Part_1_Glove_Detection
+
+# Run detection on your images
+python detection_script.py --input /path/to/your/images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
+
+# Check results
+# - Annotated images: results/
+# - Detection logs: detection_logs/
+```
+
+#### Notes:
+
+- **No code changes required** - works with any folder of images
+- **Model weights:** Make sure `train_run/weights/best.pt` exists (from training)
+- **Image format:** Only `.jpg`/`.jpeg` files are processed
+- **Multiple detections:** If both gloved and bare hands are detected in one image, both will appear in the JSON and annotated image
+- **Confidence threshold:** Lower values (e.g., 0.3) catch more hands but may include false positives. Higher values (e.g., 0.7) are more strict but may miss some detections
 
 ---
 
@@ -201,11 +340,10 @@ Part_1_Glove_Detection/
 │   ├── valid/
 │   ├── test/
 │   └── data.yaml
-├── weights/           # best.pt, etc.
 ├── output/            # annotated images
 ├── logs/              # JSON detection logs
 ├── detection_script.py
-├── train.py
+├── train.py 
 ├── requirements.txt
 └── README.md
 ```
