@@ -1,0 +1,11 @@
+Q1: Choosing the Right Approach
+I would use detection because we need to find the label area and confirm if it is present or missing. Detection is better than classification here because it also shows where the label should be, which helps in debugging. Classification can work only if the camera view is fixed and the label is always in the same place. Segmentation can work too, but it usually needs more labeling effort and can be heavier. If detection does not work well due to glare, blur, or very small labels, I would try a two-step method: detect the product, crop the label region, then classify label present vs missing.
+
+Q2: Debugging a Poorly Performing Model
+First I would check the data split to ensure similar or duplicate images are not leaking into both train and test. Then I would look at model predictions on new factory images and note what type of cases fail (lighting, blur, angle, background). I would compare a few training images vs new images side by side to see if there is a domain shift. I would also test different confidence thresholds to see if the issue is mainly missed detections or too many false alarms. Finally, I would review some labels for mistakes and retrain with a small set of hard examples from the factory.
+
+Q3: Accuracy vs Real Risk
+Accuracy is not enough here because missing a defective product is costly, even if overall accuracy looks high. I would focus more on recall for the defective class and track how many defects are missed. I would also look at a confusion matrix and precision-recall to pick a threshold that reduces misses. I would track false negatives per shift or per day, because that is how the factory feels the impact. A practical metric is defects missed per 1000 items, because it matches real factory risk.
+
+Q4: Annotation Edge Cases
+I would keep blurry or partially visible objects if they happen in real production, because the model will face them in real life. But I would label them consistently and avoid guessing when the object is too unclear. The trade-off is that these images improve robustness, but they can also add noise and reduce training quality if labels are wrong. If an image is extremely unclear, I would mark it as ignore or keep it for testing instead of training. I would also write a simple rule for annotators, like “label only if you can clearly identify the object”.
