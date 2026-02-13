@@ -167,7 +167,13 @@ Despite CPU constraints, the model achieves reasonable performance through caref
    python train.py --data dataset/data.yaml --model yolov8s.pt --epochs 30 --imgsz 640 --batch 8 --weights-dir weights --project .
    ```
 
-3. Best weights are written to `train_run/weights/best.pt` and also stored under the latest run directory (e.g. `train_run/weights/best.pt`). In practice you can use either path; this README uses the `train_run/weights/best.pt` location for inference.
+3. **Training outputs:** 
+   - A `train_run/` folder is created automatically (you don't need it beforehand)
+   - Best weights are saved to `train_run/weights/best.pt`
+   - Weights are also copied to `weights/best.pt` (if `--weights-dir weights` is used)
+   - Training plots, logs, and configuration files are saved in `train_run/`
+   
+   **For inference:** Use `train_run/weights/best.pt` or `weights/best.pt` - both contain the same model.
 
 ### Training commands summary
 
@@ -261,7 +267,33 @@ The script auto-detects device in this priority order:
 
 ### For Reviewers/Testers
 
-To test the model with your own images, follow these simple steps:
+#### Important: About `train_run` Folder
+
+**Do you need `train_run`?**
+
+- **For testing/inference only:** You need the trained weights file (`train_run/weights/best.pt`). If this file doesn't exist, you'll need to train the model first (see [Training](#training) section).
+- **For training:** You do NOT need `train_run` - it will be created automatically when you run training. Training will create a fresh `train_run/` folder with new weights, plots, and logs.
+
+**What's in `train_run`?**
+- `weights/best.pt` - Trained model weights (needed for inference)
+- Training plots (confusion matrix, PR curves, etc.) - useful for evaluation but not required
+- Training logs and configuration files - useful for reference but not required
+
+**Two options for reviewers:**
+
+1. **Use pre-trained weights** (if `train_run/weights/best.pt` exists):
+   - Skip training, go directly to testing
+   - Use the weights file that came with the project
+
+2. **Train fresh** (recommended if you want to verify training works):
+   - Run training yourself (creates new `train_run/` folder)
+   - Then use your newly trained weights for testing
+
+---
+
+### Testing with Pre-trained Weights
+
+To test the model with your own images using pre-trained weights, follow these steps:
 
 #### Step 1: Prepare Your Images
 
@@ -324,10 +356,24 @@ python detection_script.py --input /path/to/your/images --output results --weigh
 #### Notes:
 
 - **No code changes required** - works with any folder of images
-- **Model weights:** Make sure `train_run/weights/best.pt` exists (from training)
+- **Model weights:** 
+  - If `train_run/weights/best.pt` exists → use it directly
+  - If it doesn't exist → train the model first (see [Training](#training) section)
 - **Image format:** Only `.jpg`/`.jpeg` files are processed
 - **Multiple detections:** If both gloved and bare hands are detected in one image, both will appear in the JSON and annotated image
 - **Confidence threshold:** Lower values (e.g., 0.3) catch more hands but may include false positives. Higher values (e.g., 0.7) are more strict but may miss some detections
+
+### Training Fresh (Optional)
+
+If you want to train the model yourself (recommended to verify the training pipeline):
+
+1. **Follow the [Training](#training) section** - it will create a new `train_run/` folder automatically
+2. **After training completes**, use the newly created weights:
+   ```bash
+   python detection_script.py --input your_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+   ```
+
+**Note:** Training creates `train_run/` automatically - you don't need an existing one!
 
 ---
 
@@ -340,13 +386,22 @@ Part_1_Glove_Detection/
 │   ├── valid/
 │   ├── test/
 │   └── data.yaml
-├── output/            # annotated images
-├── logs/              # JSON detection logs
+├── train_run/         # Created automatically during training (optional - only needed if using pre-trained weights)
+│   └── weights/
+│       └── best.pt    # Trained model weights (needed for inference)
+├── weights/           # Alternative location for weights (if copied from train_run)
+├── output/            # Annotated images (created during inference)
+├── logs/              # JSON detection logs (created during inference)
 ├── detection_script.py
 ├── train.py 
 ├── requirements.txt
 └── README.md
 ```
+
+**Note:** 
+- `train_run/` is created automatically when you run training - you don't need it beforehand
+- For inference, you need `train_run/weights/best.pt` (or train fresh to create it)
+- `output/` and `logs/` are created automatically during inference
 
 ---
 
