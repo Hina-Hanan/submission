@@ -85,7 +85,7 @@ This section shows you exactly how to run the scripts. Choose one option below.
 
 **Use this if:** You want to verify the training pipeline works correctly.
 
-#### Step 1: Train the Model
+#### Step 1: Train the Model(check in [training](#training) section for more info)
 
 ```bash
 # Navigate to project folder
@@ -95,8 +95,10 @@ cd Part_1_Glove_Detection
 # Windows: venv\Scripts\activate
 # Mac/Linux: source venv/bin/activate
 
-# Run training
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
+# Run training 
+```bash
+python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
+```
 ```
 
 **What happens:**
