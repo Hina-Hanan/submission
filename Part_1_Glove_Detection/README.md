@@ -59,6 +59,7 @@ cd Part_1_Glove_Detection
 pip install -r requirements.txt
 
 # Run training 
+# checkout training section section to see the command which suits your device
 ```bash
 python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
 ```
