@@ -76,12 +76,12 @@ mkdir my_test_images
 # (Add your .jpg images to my_test_images folder)
 
 # Run detection
-python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs my_logs --batch 4
 ```
 
 **Results:**
 - Annotated images → `results/` folder
-- Detection logs → `logs/` folder (JSON files)
+- Detection logs → `my_logs/` folder (JSON files)
 
 ---
 
@@ -111,12 +111,12 @@ mkdir my_test_images
 # (Add your .jpg images to my_test_images folder)
 
 # Run detection
-python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs my_logs --batch 4
 ```
 
 **Results:**
 - Annotated images → `results/` folder
-- Detection logs → `logs/` folder (JSON files)
+- Detection logs → `my_logs/` folder (JSON files)
 
 ---
 
