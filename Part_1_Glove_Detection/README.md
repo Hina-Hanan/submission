@@ -169,11 +169,14 @@ Despite CPU constraints, the model achieves reasonable performance through caref
 
 3. **Training outputs:** 
    - A `train_run/` folder is created automatically (you don't need it beforehand)
+   - **Important:** If `train_run/` already exists (e.g., from cloning the repo), it will be **overwritten** with new training results
    - Best weights are saved to `train_run/weights/best.pt`
    - Weights are also copied to `weights/best.pt` (if `--weights-dir weights` is used)
    - Training plots, logs, and configuration files are saved in `train_run/`
    
    **For inference:** Use `train_run/weights/best.pt` or `weights/best.pt` - both contain the same model.
+   
+   **Note for reviewers:** If you clone this repository and `train_run/` already exists, running training will replace the existing folder. You will NOT get duplicate folders - only one `train_run/` will exist at a time.
 
 ### Training commands summary
 
@@ -267,27 +270,81 @@ The script auto-detects device in this priority order:
 
 ### For Reviewers/Testers
 
-#### Important: About `train_run` Folder
+#### Quick Decision Guide
 
-**Do you need `train_run`?**
+**After cloning this repository, choose your path:**
 
-- **For testing/inference only:** You need the trained weights file (`train_run/weights/best.pt`). If this file doesn't exist, you'll need to train the model first (see [Training](#training) section).
-- **For training:** You do NOT need `train_run` - it will be created automatically when you run training. Training will create a fresh `train_run/` folder with new weights, plots, and logs.
+1. **I just want to test the model** → Use existing weights (if `train_run/weights/best.pt` exists)
+   - Go to: [Testing with Pre-trained Weights](#testing-with-pre-trained-weights)
+   - No training needed!
 
-**What's in `train_run`?**
-- `weights/best.pt` - Trained model weights (needed for inference)
-- Training plots (confusion matrix, PR curves, etc.) - useful for evaluation but not required
-- Training logs and configuration files - useful for reference but not required
+2. **I want to verify training works** → Train the model yourself
+   - Go to: [Training Fresh](#training-fresh-optional)
+   - Training will overwrite existing `train_run/` folder (this is safe!)
 
-**Two options for reviewers:**
+3. **I'm not sure** → Read the detailed explanation below
 
-1. **Use pre-trained weights** (if `train_run/weights/best.pt` exists):
-   - Skip training, go directly to testing
-   - Use the weights file that came with the project
+---
 
-2. **Train fresh** (recommended if you want to verify training works):
-   - Run training yourself (creates new `train_run/` folder)
-   - Then use your newly trained weights for testing
+#### Understanding the `train_run` Folder - Step by Step
+
+**What is `train_run`?**
+- It's a folder that contains everything created during training: model weights, training plots, logs, and configuration files
+- It's created automatically when you run training
+- You don't need to create it manually
+
+**What happens when you clone this repository?**
+
+When you clone the GitHub repository, you might see a `train_run/` folder already there. This contains the pre-trained model weights from the original training.
+
+**Scenario 1: You want to test with pre-trained weights (skip training)**
+
+✅ **What to do:**
+1. Check if `train_run/weights/best.pt` exists
+2. If it exists → You can use it directly for testing (skip to [Testing section](#testing-with-pre-trained-weights))
+3. If it doesn't exist → You need to train first (see Scenario 2)
+
+**Scenario 2: You want to train the model yourself**
+
+✅ **What happens when you run training:**
+
+**Step 1:** Run the training command:
+```bash
+python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
+```
+
+**Step 2:** The training script checks:
+- Does `train_run/` folder exist? 
+  - **YES** → It will **OVERWRITE** the existing folder (the old weights and plots will be replaced)
+  - **NO** → It will create a new `train_run/` folder
+
+**Step 3:** After training completes:
+- A new `train_run/` folder is created (or the old one is replaced)
+- Inside `train_run/weights/` you'll find `best.pt` - this is your newly trained model
+- Training plots and logs are saved in `train_run/`
+
+**Important:** 
+- ⚠️ **If `train_run/` already exists, training will OVERWRITE it** - the old weights will be replaced with new ones
+- ✅ **You will NOT get two `train_run` folders** - there will always be only one
+- ✅ **This is safe** - you can always re-clone the repository to get the original weights back
+
+**Step 4:** Use your newly trained weights:
+```bash
+python detection_script.py --input your_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+```
+
+**Summary Table:**
+
+| Situation | What Happens | Result |
+|-----------|--------------|--------|
+| Clone repo → `train_run/` exists → You run training | Old `train_run/` is **overwritten** | New training results replace old ones |
+| Clone repo → `train_run/` exists → You test only | Uses existing weights | No changes to `train_run/` |
+| Clone repo → No `train_run/` → You run training | New `train_run/` is **created** | Fresh training results |
+| Clone repo → No `train_run/` → You test only | Error: weights not found | You must train first |
+
+**Recommendation for reviewers:**
+- If you want to verify training works → Train fresh (it's safe, old weights will be overwritten)
+- If you just want to test → Use existing weights (no training needed)
 
 ---
 
