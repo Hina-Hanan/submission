@@ -5,13 +5,11 @@ Production-ready object detection pipeline to detect hands in images and classif
 ## Table of Contents
 
 - [Installation](#installation)
+- [How to Run](#how-to-run) ⭐ **Start Here**
 - [Dataset](#dataset)
 - [Model](#model)
 - [Training](#training)
 - [Inference](#inference)
-- [Testing with Your Own Images](#testing-with-your-own-images)
-  - [Option A: Train the Model Yourself (Recommended)](#option-a-train-the-model-yourself-recommended)
-  - [Option B: Use Pre-trained Weights (Quick Test)](#option-b-use-pre-trained-weights-quick-test)
 - [Project structure](#project-structure)
 - [What worked](#what-worked)
 - [Limitations and what didn't work as well](#limitations-and-what-didnt-work-as-well)
@@ -72,6 +70,118 @@ venv\Scripts\activate  # Windows
 source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
+
+---
+
+## How to Run
+
+### Quick Start Guide for Reviewers
+
+This section shows you exactly how to run the scripts. Choose one option below.
+
+---
+
+### Option 1: Train and Test (Recommended)
+
+**Use this if:** You want to verify the training pipeline works correctly.
+
+#### Step 1: Train the Model
+
+```bash
+# Navigate to project folder
+cd Part_1_Glove_Detection
+
+# Activate virtual environment (if using one)
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+
+# Run training
+python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
+```
+
+**What happens:**
+- Training starts (takes 30 minutes to several hours)
+- Creates/overwrites `train_run/` folder with new weights
+- Saves model to `train_run/weights/best.pt`
+
+#### Step 2: Test with Your Images
+
+```bash
+# Create a folder with your test images
+mkdir my_test_images
+# (Add your .jpg images to my_test_images folder)
+
+# Run detection
+python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+```
+
+**Results:**
+- Annotated images → `results/` folder
+- Detection logs → `logs/` folder (JSON files)
+
+---
+
+### Option 2: Quick Test Only (Use Pre-trained Weights)
+
+**Use this if:** You just want to test inference quickly without training.
+
+#### Step 1: Verify Weights Exist
+
+```bash
+cd Part_1_Glove_Detection
+ls train_run/weights/best.pt  # Should show the file
+```
+
+#### Step 2: Run Detection
+
+```bash
+# Create folder with your test images
+mkdir my_test_images
+# (Add your .jpg images to my_test_images folder)
+
+# Run detection
+python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
+```
+
+**Results:**
+- Annotated images → `results/` folder
+- Detection logs → `logs/` folder (JSON files)
+
+---
+
+### Command Parameters Explained
+
+**For `detection_script.py`:**
+- `--input my_test_images` → Folder containing your `.jpg` images
+- `--output results` → Where annotated images will be saved
+- `--weights train_run/weights/best.pt` → Model weights file (required)
+- `--confidence 0.5` → Detection threshold (0-1, default: 0.5)
+- `--logs logs` → Where JSON logs will be saved
+- `--batch 4` → Batch size (use 1 for very limited memory)
+
+**For `train.py`:**
+- `--data dataset/data.yaml` → Dataset configuration file
+- `--model yolov8n.pt` → Base model to use
+- `--epochs 12` → Number of training epochs
+- `--batch 2` → Batch size (increase if you have GPU)
+- `--imgsz 320` → Image size (use 640 for better results if you have GPU)
+- `--weights-dir weights` → Where to save weights
+
+---
+
+### Troubleshooting
+
+**Error: "Weights file not found"**
+- Solution: Train the model first (Option 1) or check that `train_run/weights/best.pt` exists
+
+**Error: "No images found"**
+- Solution: Make sure your images are `.jpg` or `.jpeg` format and in the folder you specified
+
+**Error: "Module not found"**
+- Solution: Install dependencies: `pip install -r requirements.txt`
+
+**Training is slow**
+- Solution: Use smaller batch size (`--batch 1` or `--batch 2`) and lower image size (`--imgsz 320`)
 
 ---
 
@@ -270,217 +380,15 @@ The script auto-detects device in this priority order:
 
 ## Testing with Your Own Images
 
-### For Reviewers/Testers
+**📌 All instructions for running the scripts are in the [How to Run](#how-to-run) section above.**
 
-#### Important Note About `train_run` Folder
+### About Pre-trained Weights
 
-**When you clone this repository, you will see a `train_run/` folder.**
-
-This folder contains **my pre-trained model weights** that I trained during development. It includes:
+When you clone this repository, you'll see a `train_run/` folder containing my pre-trained model weights:
 - `train_run/weights/best.pt` - The trained model file
 - Training plots and logs from my training session
 
-**⭐ RECOMMENDED:** I recommend that reviewers **train the model themselves** to verify that the training pipeline works correctly. This is the best way to ensure everything functions as expected.
-
-**However, if you just want to quickly test inference, you can use my pre-trained weights.**
-
----
-
-## Option A: Train the Model Yourself (Recommended)
-
-### Step-by-Step Instructions
-
-**Why train yourself?**
-- ✅ Verifies that the training pipeline works correctly
-- ✅ Ensures all dependencies are properly installed
-- ✅ Confirms the dataset structure is correct
-- ✅ You'll get your own training results and plots
-
-**What happens to the existing `train_run/` folder?**
-- ⚠️ **Training will OVERWRITE the existing `train_run/` folder**
-- ✅ This is safe - you can always re-clone the repository to get my original weights back
-- ✅ You will NOT get duplicate folders - only one `train_run/` will exist
-
-#### Step 1: Install Dependencies
-
-```bash
-# Navigate to project directory
-cd Part_1_Glove_Detection
-
-# Create virtual environment (if not already done)
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Mac/Linux:
-source venv/bin/activate
-
-# Install required packages
-pip install -r requirements.txt
-```
-
-#### Step 2: Verify Dataset Structure
-
-Check that your dataset is in the correct format:
-
-```bash
-# Verify dataset structure exists
-ls dataset/train/images    # Should show training images
-ls dataset/valid/images    # Should show validation images
-ls dataset/test/images      # Should show test images
-ls dataset/data.yaml        # Should show the config file
-```
-
-#### Step 3: Run Training
-
-Choose the appropriate command based on your hardware:
-
-**For GPU or Strong CPU (Recommended):**
-```bash
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
-```
-
-**For CPU-only (Lighter settings):**
-```bash
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
-```
-
-**What happens:**
-- Training will start and show progress
-- The existing `train_run/` folder will be **overwritten** with new training results
-- Training may take 30 minutes to several hours depending on your hardware
-
-#### Step 4: Verify Training Completed
-
-After training finishes, check:
-
-```bash
-# Verify weights were created
-ls train_run/weights/best.pt    # Should exist
-
-# Check training plots (optional)
-ls train_run/*.png              # Should show training plots
-```
-
-#### Step 5: Test with Your Own Images
-
-Now use your newly trained model:
-
-```bash
-# Prepare your test images folder
-# (Create a folder and add your .jpg images)
-
-# Run detection
-python detection_script.py --input your_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
-```
-
-**Check results:**
-- Annotated images: `results/` folder
-- Detection logs: `detection_logs/` folder (JSON files)
-
----
-
-## Option B: Use Pre-trained Weights (Quick Test)
-
-### Step-by-Step Instructions
-
-**Use this option if:**
-- ✅ You just want to quickly test inference
-- ✅ You don't want to wait for training
-- ✅ You trust the pre-trained weights
-
-**Note:** This uses my pre-trained model weights from the repository.
-
-#### Step 1: Verify Pre-trained Weights Exist
-
-```bash
-# Navigate to project directory
-cd Part_1_Glove_Detection
-
-# Check if weights exist
-ls train_run/weights/best.pt
-```
-
-If the file exists, you're good to go! If not, you'll need to train first (see Option A).
-
-#### Step 2: Install Dependencies (if not already done)
-
-```bash
-# Create virtual environment (if needed)
-python -m venv venv
-
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# Mac/Linux:
-source venv/bin/activate
-
-# Install required packages
-pip install -r requirements.txt
-```
-
-#### Step 3: Prepare Your Test Images
-
-1. **Create a folder** for your test images:
-   ```bash
-   mkdir my_test_images
-   ```
-
-2. **Add your `.jpg` images** to this folder:
-   - Supported formats: `.jpg`, `.jpeg`, `.JPG`, `.JPEG`
-   - No labels needed - just images!
-
-**Example:**
-```
-my_test_images/
-├── image1.jpg
-├── image2.jpg
-└── photo1.jpeg
-```
-
-#### Step 4: Run Detection
-
-```bash
-python detection_script.py --input my_test_images --output results --weights train_run/weights/best.pt --confidence 0.5 --logs detection_logs --batch 4
-```
-
-**Parameters explained:**
-- `--input my_test_images` → Your folder with test images
-- `--output results` → Where annotated images will be saved
-- `--weights train_run/weights/best.pt` → Using pre-trained weights from repository
-- `--confidence 0.5` → Detection threshold (0-1)
-- `--logs detection_logs` → Where JSON logs will be saved
-- `--batch 4` → Batch size (use 1 for very limited memory)
-
-#### Step 5: View Results
-
-After running, check your results:
-
-```bash
-# View annotated images
-ls results/              # Should show annotated images with bounding boxes
-
-# View detection logs
-ls detection_logs/      # Should show JSON files (one per image)
-cat detection_logs/*.json  # View detection results
-```
-
-**What you'll see:**
-- **Annotated images:** Original images with bounding boxes and labels (`gloved_hand` or `bare_hand`)
-- **JSON logs:** One file per image with detection details (label, confidence, bounding box coordinates)
-
----
-
-### Quick Comparison
-
-| Aspect | Option A: Train Yourself | Option B: Use Pre-trained |
-|--------|-------------------------|--------------------------|
-| **Time** | 30 min - several hours | ~5 minutes |
-| **Verifies** | Training + Inference | Inference only |
-| **Requires** | Dataset + Training time | Just test images |
-| **Recommended** | ✅ Yes (best practice) | Quick testing only |
-| **Overwrites `train_run/`** | Yes (creates new) | No (uses existing) |
+**Note:** If you run training yourself, it will overwrite this folder (this is safe - you can always re-clone to get original weights back).
 
 ---
 
@@ -496,7 +404,6 @@ Part_1_Glove_Detection/
 ├── train_run/         # Created automatically during training (optional - only needed if using pre-trained weights)
 │   └── weights/
 │       └── best.pt    # Trained model weights (needed for inference)
-├── weights/           # Alternative location for weights (if copied from train_run)
 ├── output/            # Annotated images (created during inference)
 ├── logs/              # JSON detection logs (created during inference)
 ├── detection_script.py
