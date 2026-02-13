@@ -5,7 +5,7 @@ Production-ready object detection pipeline to detect hands in images and classif
 ## Table of Contents
 
 - [Installation](#installation)
-- [How to Run](#how-to-run) ⭐ **Start Here**
+- [How to Run](#how-to-run) 
 - [Dataset](#dataset)
 - [Model](#model)
 - [Training](#training)
@@ -32,24 +32,6 @@ Production-ready object detection pipeline to detect hands in images and classif
      ```
    - Or download from [python.org](https://www.python.org/downloads/)
 
-2. **Create Virtual Environment:**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # Note: use 'source' instead of Windows' 'venv\Scripts\activate'
-   ```
-
-3. **Install Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   
-   **Note:** PyTorch will automatically use MPS (Metal Performance Shaders) on Apple Silicon Macs (M1/M2/M3) for faster inference and training. The script auto-detects this - no additional configuration needed!
-
-4. **Commands are identical:**
-   - Training: Same commands as Windows/Linux
-   - Inference: Same commands as Windows/Linux
-   - The only difference is using `python3` instead of `python` if your system requires it
-
 ---
 
 ## How to Run
@@ -60,7 +42,7 @@ This section shows you exactly how to run the scripts. Choose one option below.
 
 ---
 
-### Option 1: Train and Test (Recommended)
+### Option 1: Train and Test
 
 **Use this if:** You want to verify the training pipeline works correctly.
 
@@ -74,13 +56,15 @@ cd Part_1_Glove_Detection
 # Windows: venv\Scripts\activate
 # Mac/Linux: source venv/bin/activate
 
+pip install -r requirements.txt
+
 # Run training 
 ```bash
 python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
 ```
 
 **What happens:**
-- Training starts (takes 30 minutes to several hours)
+- Training starts (takes 30 minutes to few hours)
 - Creates/overwrites `train_run/` folder with new weights
 - Saves model to `train_run/weights/best.pt`
 
@@ -108,7 +92,14 @@ python detection_script.py --input my_test_images --output results --weights tra
 #### Step 1: Verify Weights Exist
 
 ```bash
+# Navigate to project folder
 cd Part_1_Glove_Detection
+
+# Activate virtual environment (if using one)
+# Windows: venv\Scripts\activate
+# Mac/Linux: source venv/bin/activate
+
+pip install -r requirements.txt
 ls train_run/weights/best.pt  # Should show the file
 ```
 
@@ -270,20 +261,6 @@ Despite CPU constraints, the model achieves reasonable performance through caref
    
    **Note for reviewers:** If you clone this repository and `train_run/` already exists, running training will replace the existing folder. You will NOT get duplicate folders - only one `train_run/` will exist at a time.
 
-### Training commands summary
-
-**Preferred (GPU/Strong CPU):**
-```bash
-cd Part_1_Glove_Detection
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
-```
-
-**What was used in this project (CPU-only):**
-```bash
-cd Part_1_Glove_Detection
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
-```
-
 ---
 
 ## Inference
@@ -293,7 +270,7 @@ python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 
 From the project root:
 
 ```bash
-python detection_script.py --input /path/to/images --output output --weights train_run/weights/best.pt [--confidence 0.5] [--logs logs] [--batch 8]
+python detection_script.py --input /path/to/images --output output --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 8
 ```
 
 - **`--input`** (required): folder containing `.jpg` images  
@@ -346,15 +323,6 @@ python detection_script.py --input ./images --output ./out --weights ./train_run
 
 - **bbox:** absolute pixel coordinates `[x1, y1, x2, y2]`.  
 - **confidence:** rounded to 2 decimal places.
-
-### GPU/CPU/MPS (Apple Silicon)
-
-The script auto-detects device in this priority order:
-1. **CUDA GPU** (NVIDIA) - if available
-2. **MPS** (Apple Silicon Mac M1/M2/M3) - if available
-3. **CPU** - fallback
-
-**Mac users:** MPS acceleration is automatically used on Apple Silicon Macs - no additional installation or configuration needed! Commands are identical to Windows/Linux.
 
 ---
 
