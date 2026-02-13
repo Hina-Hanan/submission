@@ -1,0 +1,16 @@
+# train: ../train/images
+# val: ../valid/images
+# test: ../test/images
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 2
+names: ['bare_hand', 'gloved_hand']
+
+roboflow:
+  workspace: glove-detection-3vldq
+  project: glove-hand-and-bare-hand-zwvif
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/glove-detection-3vldq/glove-hand-and-bare-hand-zwvif/dataset/3
