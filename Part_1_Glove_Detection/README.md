@@ -50,27 +50,6 @@ Production-ready object detection pipeline to detect hands in images and classif
    - Inference: Same commands as Windows/Linux
    - The only difference is using `python3` instead of `python` if your system requires it
 
-#### Apple Silicon (M1/M2/M3) Performance:
-
-- **Training:** MPS acceleration provides faster training than CPU-only, but slower than NVIDIA GPU
-- **Inference:** Significantly faster than CPU-only
-- **Recommended settings for Apple Silicon:**
-  ```bash
-  python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 8 --imgsz 640 --weights-dir weights
-  ```
-  (Batch size 8-12 works well on Apple Silicon)
-
-### Windows/Linux Users
-
-Standard installation:
-```bash
-python -m venv venv
-venv\Scripts\activate  # Windows
-# or
-source venv/bin/activate  # Linux/Mac
-pip install -r requirements.txt
-```
-
 ---
 
 ## How to Run
@@ -98,7 +77,6 @@ cd Part_1_Glove_Detection
 # Run training 
 ```bash
 python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
-```
 ```
 
 **What happens:**
