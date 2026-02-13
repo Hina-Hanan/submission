@@ -4,30 +4,6 @@ Production-ready object detection pipeline to detect hands in images and classif
 
 ---
 
-## Quick Start
-
-### Training
-
-**⭐ Recommended (GPU or Strong CPU):**
-```bash
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 25 --batch 16 --imgsz 640 --weights-dir weights
-```
-
-**What I used (CPU-only laptop):**
-```bash
-python train.py --data dataset/data.yaml --model yolov8n.pt --epochs 12 --batch 2 --imgsz 320 --weights-dir weights
-```
-
-### Inference
-
-```bash
-python detection_script.py --input dataset/test/images --output output --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 4
-```
-
-This will process all `.jpg` images in the input folder, save annotated images to `output/`, and create JSON detection logs in `logs/`.
-
----
-
 ## Dataset
 
 - **Name:** Glove Hand and Bare Hand (Roboflow)
