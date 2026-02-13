@@ -264,22 +264,6 @@ Despite CPU constraints, the model achieves reasonable performance through caref
 ---
 
 ## Inference
-
-### How to run
-
-From the project root:
-
-```bash
-python detection_script.py --input /path/to/images --output output --weights train_run/weights/best.pt --confidence 0.5 --logs logs --batch 8
-```
-
-- **`--input`** (required): folder containing `.jpg` images  
-- **`--output`**: folder for annotated images (default: `output`)  
-- **`--weights`** (required): path to `.pt` model file  
-- **`--confidence`**: detection threshold 0–1 (default: 0.5)  
-- **`--logs`**: folder for per-image JSON logs (default: `logs`)  
-- **`--batch`**: batch size for inference (default: 8; use 1 for sequential)
-
 ### Example CLI usage
 
 **⭐ Recommended (GPU or Strong CPU):**
