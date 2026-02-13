@@ -368,11 +368,8 @@ Part_1_Glove_Detection/
 
 ### Model and data limitations
 
-- **Domain shift:** The model performs well on images similar to the training set but struggles with significantly different styles (e.g., professional stock photos, unusual camera angles, different backgrounds).
 - **Class imbalance:** The dataset had more gloved hand examples than bare hands, which may have affected the model's ability to confidently detect bare hands in some scenarios.
 - **Small dataset:** With limited training data, the model may not generalize well to all real-world factory environments without additional domain-specific training.
-- **Occlusion and scale:** Very small or heavily occluded hands may be missed or misclassified.
-- **Two-class limitation:** Only detects gloved vs bare; cannot distinguish between different glove types or other PPE items.
 
 ### Technical limitations
 
