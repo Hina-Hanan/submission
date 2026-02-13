@@ -329,15 +329,6 @@ python detection_script.py --input ./images --output ./out --weights ./train_run
 ## Testing with Your Own Images
 
 **📌 All instructions for running the scripts are in the [How to Run](#how-to-run) section above.**
-
-### About Pre-trained Weights
-
-When you clone this repository, you'll see a `train_run/` folder containing my pre-trained model weights:
-- `train_run/weights/best.pt` - The trained model file
-- Training plots and logs from my training session
-
-**Note:** If you run training yourself, it will overwrite this folder (this is safe - you can always re-clone to get original weights back).
-
 ---
 
 ## Project structure
