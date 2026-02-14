@@ -21,17 +21,8 @@ GitHub repository: `https://github.com/Hina-Hanan/submission`
 
 ## Installation
 
-### Mac (macOS) Users
-
-**Good news:** All commands are the same! The pipeline automatically detects and uses Apple Silicon GPU (MPS) if available.
-
-#### Additional Setup for Mac:
-
 1. **Python Installation:**
-   - If you don't have Python 3.8+, install via Homebrew:
-     ```bash
-     brew install python3
-     ```
+   - If you don't have Python 3.8+, install it (recommended 3.8 - 3.12)
    - Or download from [python.org](https://www.python.org/downloads/)
 
 ---
