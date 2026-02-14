@@ -1,5 +1,7 @@
 # Submission
 
+GitHub repository: `https://github.com/Hina-Hanan/submission`
+
 This submission contains two parts:
 
 1. `Part_1_Glove_Detection/` - YOLOv8 glove vs bare hand detection pipeline (training + inference scripts).
