@@ -2,6 +2,8 @@
 
 Production-ready object detection pipeline to detect hands in images and classify them as **gloved_hand** or **bare_hand**. Built with YOLOv8 (Ultralytics), PyTorch, and OpenCV.
 
+GitHub repository: `https://github.com/Hina-Hanan/submission`
+
 ## Table of Contents
 
 - [Installation](#installation)
